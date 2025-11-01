@@ -1,10 +1,10 @@
-package com.example.demo;
+package familyConnection;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class FamilyApplicationTests {
 
 	@Test
 	void contextLoads() {
