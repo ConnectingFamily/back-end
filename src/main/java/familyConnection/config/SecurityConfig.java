@@ -2,9 +2,6 @@ package familyConnection.config;
 
 import familyConnection.security.jwt.JwtAuthenticationFilter;
 import familyConnection.security.jwt.JwtTokenProvider;
-
-import familyConnection.security.oauth.KakaoOAuth2UserService;
-import familyConnection.security.oauth.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.*;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -29,25 +27,35 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final KakaoOAuth2UserService kakaoOAuth2UserService;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    // 필요 시 주입해서 사용
-    // private final KakaoOAuth2UserService kakaoOAuth2UserService;
-    // private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-
+    // Swagger
     private static final String[] SWAGGER = {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
     };
+
+    // 로그인/토큰 교환/리다이렉트/헬스체크 등 공개 경로
     private static final String[] PUBLIC = {
-            "/", "/actuator/health", "/auth/**", "/oauth2/**", "/login/**"
+            "/", "/actuator/health",
+            "/api/auth/**",             // 카카오 코드 교환 API 등
+            "/oauth2/**",
+            "/login/**", "/login/oauth2/**"
     };
+
+    // 정적 리소스
     private static final String[] STATIC = {
             "/favicon.ico", "/assets/**", "/css/**", "/js/**", "/images/**"
     };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Jwt 필터에서 건너뛸(스킵) 경로 패턴 통합
+        List<String> skip = new ArrayList<>();
+        addAll(skip, SWAGGER);
+        addAll(skip, PUBLIC);
+        addAll(skip, STATIC);
+
+        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtTokenProvider, skip);
+
         http
                 // REST API 기본 세팅
                 .csrf(csrf -> csrf.disable())
@@ -60,14 +68,14 @@ public class SecurityConfig {
 
                 // 권한 규칙
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS preflight 허용
                         .requestMatchers(SWAGGER).permitAll()
                         .requestMatchers(PUBLIC).permitAll()
                         .requestMatchers(STATIC).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .anyRequest().authenticated()
                 )
 
-                // 인증/인가 실패 시 JSON으로 응답
+                // 인증/인가 실패 공통 응답(JSON)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, ex1) -> {
                             res.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -85,25 +93,24 @@ public class SecurityConfig {
                         })
                 )
 
-                // OAuth2 (카카오) – 서비스/핸들러 구현했으면 주석 해제
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(u -> u.userService(kakaoOAuth2UserService))
-                        .successHandler(oAuth2LoginSuccessHandler)
-                        .defaultSuccessUrl("/login/success", true)
-                )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class);
+                // JWT 필터 등록(UsernamePasswordAuthenticationFilter 앞)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // CORS 명시 (프론트 도메인에 맞게 수정)
+    private static void addAll(List<String> target, String[] arr) {
+        for (String s : arr) target.add(s);
+    }
+
+    // CORS (개발용: 필요 시 도메인 고정/축소)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration c = new CorsConfiguration();
         c.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
         c.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         c.setAllowedHeaders(List.of("*"));
+        c.setExposedHeaders(List.of("Authorization", "Location"));
         c.setAllowCredentials(true);
         c.setMaxAge(3600L);
 
@@ -112,7 +119,6 @@ public class SecurityConfig {
         return source;
     }
 
-    // 비번 사용 시 대비
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
