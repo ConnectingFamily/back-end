@@ -8,7 +8,7 @@ import familyConnection.domain.family.entity.Family;
 import familyConnection.domain.family.entity.FamilyMember;
 import familyConnection.domain.family.repository.FamilyMemberRepository;
 import familyConnection.domain.family.repository.FamilyRepository;
-import familyConnection.domain.user.controller.UserRepository;
+import familyConnection.domain.user.repository.UserRepository;
 import familyConnection.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

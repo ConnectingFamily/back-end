@@ -1,8 +1,7 @@
-package familyConnection.domain.user.controller;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+package familyConnection.domain.user.repository;
 
 import familyConnection.domain.user.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
