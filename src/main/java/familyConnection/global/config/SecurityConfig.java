@@ -38,7 +38,8 @@ public class SecurityConfig {
       "/", "/actuator/health",
       "/api/auth/**", // 카카오 코드 교환 API 등
       "/oauth2/**",
-      "/login/**", "/login/oauth2/**"
+      "/login/**", "/login/oauth2/**",
+      "/api/test/auth/**",
   };
 
   // 정적 리소스
