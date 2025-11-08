@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import familyConnection.domain.auth.dto.TokenDto;
 import familyConnection.domain.family.repository.FamilyMemberRepository;
 import familyConnection.global.security.jwt.JwtTokenProvider;
-import familyConnection.domain.user.controller.UserRepository;
+import familyConnection.domain.user.repository.UserRepository;
 import familyConnection.domain.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
