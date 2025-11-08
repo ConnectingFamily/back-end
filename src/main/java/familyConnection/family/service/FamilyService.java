@@ -4,6 +4,8 @@ import familyConnection.family.Family;
 import familyConnection.family.FamilyMember;
 import familyConnection.family.dto.CreateFamilyRequestDto;
 import familyConnection.family.dto.FamilyResponseDto;
+import familyConnection.family.dto.FamilySearchResponseDto;
+import familyConnection.family.dto.MemberDto;
 import familyConnection.family.repository.FamilyMemberRepository;
 import familyConnection.family.repository.FamilyRepository;
 import familyConnection.user.User;
@@ -13,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -85,5 +89,45 @@ public class FamilyService {
       code.append(INVITE_CODE_CHARS.charAt(random.nextInt(INVITE_CODE_CHARS.length())));
     }
     return code.toString();
+  }
+
+  @Transactional(readOnly = true)
+  public FamilySearchResponseDto searchFamilyByInviteCode(String inviteCode) {
+    // 초대 코드로 가족 조회
+    Family family = familyRepository.findByInviteCode(inviteCode)
+        .orElseThrow(() -> new RuntimeException("유효하지 않은 초대 코드입니다."));
+
+    // 가족이 비활성화된 경우
+    if (!family.getIsActive()) {
+      throw new RuntimeException("유효하지 않은 초대 코드입니다.");
+    }
+
+    // 활성 멤버 목록 조회
+    List<FamilyMember> activeMembers = familyMemberRepository.findByFamilyAndIsActiveTrueWithUser(family);
+
+    // MemberDto 리스트 생성
+    List<MemberDto> members = activeMembers.stream()
+        .map(member -> {
+          User user = member.getUser();
+          // 가족 내 닉네임이 있으면 우선 사용, 없으면 User의 nickname 사용
+          String nickname = member.getNicknameInFamily() != null && !member.getNicknameInFamily().isEmpty()
+              ? member.getNicknameInFamily()
+              : (user.getNickname() != null ? user.getNickname() : "이름 없음");
+
+          return MemberDto.builder()
+              .userId(user.getId())
+              .nickname(nickname)
+              .profileImageUrl(user.getProfileImageUrl())
+              .build();
+        })
+        .collect(Collectors.toList());
+
+    return FamilySearchResponseDto.builder()
+        .familyId(family.getFamilyId())
+        .familyName(family.getFamilyName())
+        .inviteCode(family.getInviteCode())
+        .memberCount(members.size())
+        .members(members)
+        .build();
   }
 }
