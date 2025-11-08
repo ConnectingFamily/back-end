@@ -1,7 +1,6 @@
-package familyConnection.domain.answer.entity;
+package familyConnection.domain.question.entity;
 
 import familyConnection.domain.family.entity.Family;
-import familyConnection.domain.question.entity.DailyQuestion;
 import familyConnection.domain.user.entity.User;
 import lombok.*;
 import org.hibernate.annotations.Comment;
