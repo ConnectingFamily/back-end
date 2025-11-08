@@ -1,6 +1,6 @@
 package familyConnection.domain.comment.entity;
 
-import familyConnection.domain.answer.entity.Answer;
+import familyConnection.domain.question.entity.Answer;
 import familyConnection.domain.user.entity.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
