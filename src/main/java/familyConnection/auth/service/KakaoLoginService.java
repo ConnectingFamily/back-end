@@ -2,6 +2,7 @@ package familyConnection.auth.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import familyConnection.auth.dto.TokenDto;
+import familyConnection.family.repository.FamilyMemberRepository;
 import familyConnection.security.jwt.JwtTokenProvider;
 import familyConnection.user.User;
 import familyConnection.user.UserRepository;
@@ -25,6 +26,7 @@ public class KakaoLoginService {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final FamilyMemberRepository familyMemberRepository;
 
     // RestClient는 WebClient와 달리 webflux 필요 X
     private final RestClient restClient = RestClient.create();
@@ -59,7 +61,10 @@ public class KakaoLoginService {
         // 4) upsert
         User user = upsertUser(userInfo);
 
-        // 5) JWT 발급
+        // 5) 가족방 소속 여부 확인 (FamilyMember와 Family 모두 활성화된 경우만)
+        boolean hasFamily = familyMemberRepository.existsByUserAndMemberAndFamilyActive(user);
+
+        // 6) JWT 발급
         String accessToken = jwtTokenProvider.createAccessToken(
                 String.valueOf(user.getId()),
                 Map.of("provider", "kakao"));
@@ -69,6 +74,7 @@ public class KakaoLoginService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .isNewUser(isNewUser)
+                .hasFamily(hasFamily)
                 .build();
     }
 
