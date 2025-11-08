@@ -44,7 +44,6 @@ public class KakaoLoginService {
     @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
     private String userInfoUri;
 
-
     @Transactional
     public TokenDto login(String authorizationCode) {
         // 1) 토큰 발급
@@ -53,19 +52,23 @@ public class KakaoLoginService {
         // 2) 사용자 정보 조회
         KakaoUserInfoResponse userInfo = getKakaoUserInfo(kakaoToken.getAccessToken());
 
-        // 3) upsert
+        // 3) 신규 유저 여부 판단 (upsert 전에 조회)
+        String kakaoId = String.valueOf(userInfo.getId());
+        boolean isNewUser = userRepository.findByKakaoId(kakaoId).isEmpty();
+
+        // 4) upsert
         User user = upsertUser(userInfo);
 
-        // 4) JWT 발급
+        // 5) JWT 발급
         String accessToken = jwtTokenProvider.createAccessToken(
                 String.valueOf(user.getId()),
-                Map.of("provider", "kakao")
-        );
+                Map.of("provider", "kakao"));
         String refreshToken = jwtTokenProvider.createRefreshToken(String.valueOf(user.getId()));
 
         return TokenDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .isNewUser(isNewUser)
                 .build();
     }
 
@@ -97,18 +100,23 @@ public class KakaoLoginService {
         String kakaoId = String.valueOf(userInfo.getId());
         String email = userInfo.getKakaoAccount() != null ? userInfo.getKakaoAccount().getEmail() : null;
         String nickname = (userInfo.getKakaoAccount() != null && userInfo.getKakaoAccount().getProfile() != null)
-                ? userInfo.getKakaoAccount().getProfile().getNickname() : null;
+                ? userInfo.getKakaoAccount().getProfile().getNickname()
+                : null;
         String profileImageUrl = (userInfo.getKakaoAccount() != null && userInfo.getKakaoAccount().getProfile() != null)
-                ? userInfo.getKakaoAccount().getProfile().getProfileImageUrl() : null;
+                ? userInfo.getKakaoAccount().getProfile().getProfileImageUrl()
+                : null;
 
         return userRepository.findByKakaoId(kakaoId)
                 .map(user -> {
                     user.setLastLoginAt(LocalDateTime.now());
                     user.setIsActive(true);
                     // 필요시 닉네임/프로필 갱신
-                    if (nickname != null) user.setNickname(nickname);
-                    if (profileImageUrl != null) user.setProfileImageUrl(profileImageUrl);
-                    if (email != null) user.setEmail(email);
+                    if (nickname != null)
+                        user.setNickname(nickname);
+                    if (profileImageUrl != null)
+                        user.setProfileImageUrl(profileImageUrl);
+                    if (email != null)
+                        user.setEmail(email);
                     return user;
                 })
                 .orElseGet(() -> {
