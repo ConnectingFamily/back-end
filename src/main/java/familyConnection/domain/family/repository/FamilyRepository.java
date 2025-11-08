@@ -2,7 +2,7 @@ package familyConnection.domain.family.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import familyConnection.domain.family.Family;
+import familyConnection.domain.family.entity.Family;
 
 import java.util.Optional;
 

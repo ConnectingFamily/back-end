@@ -1,4 +1,4 @@
-package familyConnection.domain.user;
+package familyConnection.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

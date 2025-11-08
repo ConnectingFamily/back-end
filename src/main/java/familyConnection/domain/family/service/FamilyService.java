@@ -1,15 +1,15 @@
 package familyConnection.domain.family.service;
 
-import familyConnection.domain.family.Family;
-import familyConnection.domain.family.FamilyMember;
 import familyConnection.domain.family.dto.CreateFamilyRequestDto;
 import familyConnection.domain.family.dto.FamilyResponseDto;
 import familyConnection.domain.family.dto.FamilySearchResponseDto;
 import familyConnection.domain.family.dto.MemberDto;
+import familyConnection.domain.family.entity.Family;
+import familyConnection.domain.family.entity.FamilyMember;
 import familyConnection.domain.family.repository.FamilyMemberRepository;
 import familyConnection.domain.family.repository.FamilyRepository;
-import familyConnection.domain.user.User;
-import familyConnection.domain.user.UserRepository;
+import familyConnection.domain.user.controller.UserRepository;
+import familyConnection.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

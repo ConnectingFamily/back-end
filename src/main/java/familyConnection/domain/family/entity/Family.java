@@ -1,11 +1,11 @@
-package familyConnection.domain.family;
+package familyConnection.domain.family.entity;
 
-import familyConnection.domain.user.User;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import familyConnection.domain.user.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

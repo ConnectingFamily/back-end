@@ -1,8 +1,9 @@
 package familyConnection.domain.family.repository;
 
-import familyConnection.domain.family.Family;
-import familyConnection.domain.family.FamilyMember;
-import familyConnection.domain.user.User;
+import familyConnection.domain.family.entity.Family;
+import familyConnection.domain.family.entity.FamilyMember;
+import familyConnection.domain.user.entity.User;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,7 +1,7 @@
-package familyConnection.domain.reminder;
+package familyConnection.domain.reminder.entity;
 
-import familyConnection.domain.question.DailyQuestion;
-import familyConnection.domain.user.User;
+import familyConnection.domain.question.entity.DailyQuestion;
+import familyConnection.domain.user.entity.User;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;

@@ -1,4 +1,4 @@
-package familyConnection.domain.question;
+package familyConnection.domain.question.entity;
 
 import lombok.*;
 import org.hibernate.annotations.Comment;
