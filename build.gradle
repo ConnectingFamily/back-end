@@ -50,6 +50,10 @@ dependencies {
     //env
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 
+    //groq
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // WebClient 쓸 거면
+
 }
 
 tasks.named('test') {
