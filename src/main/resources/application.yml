@@ -43,3 +43,7 @@ jwt:
   access-token-validity-seconds: 3600
   refresh-token-validity-seconds: 1209600
 
+groq:
+  base-url: https://api.groq.com/openai/v1
+  api-key: ${GROQ_API_KEY}
+  model: llama-3.3-70b-versatile
