@@ -1,18 +1,21 @@
 package familyConnection.domain.reaction.entity;
 
+import familyConnection.domain.user.entity.User;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
-import familyConnection.domain.user.entity.User;
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reactions",
-       uniqueConstraints = {
-           @UniqueConstraint(name = "uk_reactions_target_user_emoji", columnNames = {"target_type", "target_id", "user_id", "emoji_type"})
-       })
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_reactions_target_user_emoji",
+                        columnNames = {"target_type", "target_id", "user_id", "emoji_type"}
+                )
+        })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +28,7 @@ public class Reaction {
     @Column(name = "reaction_id")
     @Comment("반응 아이디")
     private Long reactionId;
+
 
     @Column(name = "target_type", length = 20, nullable = false)
     @Comment("대상 타입 (ANSWER, COMMENT)")
@@ -48,4 +52,3 @@ public class Reaction {
     @Comment("생성시각")
     private LocalDateTime createdAt;
 }
-
