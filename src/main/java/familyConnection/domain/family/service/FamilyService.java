@@ -8,6 +8,8 @@ import familyConnection.domain.family.entity.Family;
 import familyConnection.domain.family.entity.FamilyMember;
 import familyConnection.domain.family.repository.FamilyMemberRepository;
 import familyConnection.domain.family.repository.FamilyRepository;
+import familyConnection.domain.level.entity.FamilyLevel;
+import familyConnection.domain.level.repository.FamilyLevelRepository;
 import familyConnection.domain.user.repository.UserRepository;
 import familyConnection.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class FamilyService {
   private static final String INVITE_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   private static final int INVITE_CODE_LENGTH = 10;
   private static final Random random = new SecureRandom();
+  private final FamilyLevelRepository familyLevelRepository;
+
 
   @Transactional
   public FamilyResponseDto createFamily(Long userId, CreateFamilyRequestDto request) {
@@ -62,6 +66,15 @@ public class FamilyService {
         .isActive(true)
         .build();
     familyMemberRepository.save(creatorMember);
+
+    FamilyLevel familyLevel = FamilyLevel.builder()
+            .family(savedFamily)
+            .currentLevel(1)
+            .currentPoints(0)
+            .levelName("낯선 마음") // 첫 단계
+            .build();
+    familyLevelRepository.save(familyLevel);
+
 
     return FamilyResponseDto.builder()
         .familyId(savedFamily.getFamilyId())
