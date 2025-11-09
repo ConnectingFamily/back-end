@@ -3,6 +3,7 @@ package familyConnection.domain.question.service;
 import familyConnection.domain.family.entity.Family;
 import familyConnection.domain.family.entity.FamilyMember;
 import familyConnection.domain.family.repository.FamilyMemberRepository;
+import familyConnection.domain.level.service.FamilyAnswerLevelService;
 import familyConnection.domain.question.dto.AnswerDetailDto;
 import familyConnection.domain.question.dto.AnswerRequestDto;
 import familyConnection.domain.question.dto.DailyQuestionResponseDto;
@@ -31,6 +32,7 @@ public class DailyQuestionService {
     private final AnswerRepository answerRepository;
     private final FamilyMemberRepository familyMemberRepository;
     private final UserRepository userRepository;
+    private final FamilyAnswerLevelService familyAnswerLevelService;
 
     /**
      * 1. 오늘자 가족 질문 가져오기
@@ -133,7 +135,8 @@ public class DailyQuestionService {
                 .build();
 
         answerRepository.save(answer);
-
+        // ✅ 여기서 가족 레벨/답변수 증가 호출
+        familyAnswerLevelService.increaseAnswerCount(dailyQuestion.getFamily());
         // 저장 후 전원 완료 여부 체크
         List<FamilyMember> activeMembers =
                 familyMemberRepository.findByFamilyAndIsActiveTrueWithUser(dailyQuestion.getFamily());
