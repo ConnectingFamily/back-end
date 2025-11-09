@@ -32,4 +32,7 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long
       "WHERE fm.family = :family " +
       "AND fm.isActive = true")
   List<FamilyMember> findByFamilyAndIsActiveTrueWithUser(@Param("family") Family family);
+
+  Optional<FamilyMember> findByUserAndFamilyAndIsActiveTrue(User user, Family family);
+
 }
