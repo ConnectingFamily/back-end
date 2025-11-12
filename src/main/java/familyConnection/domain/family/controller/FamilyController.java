@@ -3,6 +3,8 @@ package familyConnection.domain.family.controller;
 import familyConnection.domain.family.dto.CreateFamilyRequestDto;
 import familyConnection.domain.family.dto.FamilyResponseDto;
 import familyConnection.domain.family.dto.FamilySearchResponseDto;
+import familyConnection.domain.family.dto.JoinFamilyRequestDto;
+import familyConnection.domain.family.dto.JoinFamilyResponseDto;
 import familyConnection.domain.family.service.FamilyService;
 import familyConnection.global.apiPayload.ApiResponse;
 import jakarta.validation.Valid;
@@ -48,5 +50,20 @@ public class FamilyController {
     FamilySearchResponseDto familySearch = familyService.searchFamilyByInviteCode(inviteCode);
 
     return ResponseEntity.ok(ApiResponse.onSuccess(familySearch));
+  }
+
+  @PostMapping("/join")
+  public ResponseEntity<ApiResponse<JoinFamilyResponseDto>> joinFamily(
+      @Valid @RequestBody JoinFamilyRequestDto request) {
+
+    // JWT에서 사용자 ID 추출
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Long userId = Long.parseLong(authentication.getName());
+
+    // 가족 합류
+    JoinFamilyResponseDto joinResponse = familyService.joinFamily(userId, request.getInviteCode());
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.onSuccess(joinResponse));
   }
 }
