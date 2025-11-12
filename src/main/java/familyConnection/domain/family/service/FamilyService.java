@@ -3,6 +3,7 @@ package familyConnection.domain.family.service;
 import familyConnection.domain.family.dto.CreateFamilyRequestDto;
 import familyConnection.domain.family.dto.FamilyResponseDto;
 import familyConnection.domain.family.dto.FamilySearchResponseDto;
+import familyConnection.domain.family.dto.JoinFamilyResponseDto;
 import familyConnection.domain.family.dto.MemberDto;
 import familyConnection.domain.family.entity.Family;
 import familyConnection.domain.family.entity.FamilyMember;
@@ -32,7 +33,6 @@ public class FamilyService {
   private static final int INVITE_CODE_LENGTH = 10;
   private static final Random random = new SecureRandom();
   private final FamilyLevelRepository familyLevelRepository;
-
 
   @Transactional
   public FamilyResponseDto createFamily(Long userId, CreateFamilyRequestDto request) {
@@ -68,13 +68,12 @@ public class FamilyService {
     familyMemberRepository.save(creatorMember);
 
     FamilyLevel familyLevel = FamilyLevel.builder()
-            .family(savedFamily)
-            .currentLevel(1)
-            .currentPoints(0)
-            .levelName("낯선 마음") // 첫 단계
-            .build();
+        .family(savedFamily)
+        .currentLevel(1)
+        .currentPoints(0)
+        .levelName("낯선 마음") // 첫 단계
+        .build();
     familyLevelRepository.save(familyLevel);
-
 
     return FamilyResponseDto.builder()
         .familyId(savedFamily.getFamilyId())
@@ -146,6 +145,52 @@ public class FamilyService {
         .inviteCode(family.getInviteCode())
         .memberCount(members.size())
         .members(members)
+        .build();
+  }
+
+  @Transactional
+  public JoinFamilyResponseDto joinFamily(Long userId, String inviteCode) {
+    // 사용자 조회
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+    // 이미 다른 가족에 속해있는지 확인
+    if (familyMemberRepository.existsByUserAndMemberAndFamilyActive(user)) {
+      throw new RuntimeException("이미 속한 가족이 있습니다.");
+    }
+
+    // 초대 코드로 가족 조회
+    Family family = familyRepository.findByInviteCode(inviteCode)
+        .orElseThrow(() -> new RuntimeException("유효하지 않은 초대 코드입니다."));
+
+    // 가족이 비활성화된 경우
+    if (!family.getIsActive()) {
+      throw new RuntimeException("유효하지 않은 초대 코드입니다.");
+    }
+
+    // 이미 해당 가족에 속해있는지 확인 (중복 가입 방지)
+    if (familyMemberRepository.findByUserAndFamilyAndIsActiveTrue(user, family).isPresent()) {
+      throw new RuntimeException("이미 해당 가족에 속해있습니다.");
+    }
+
+    // FamilyMember 생성 (MEMBER 역할, nicknameInFamily는 User의 nickname 사용)
+    FamilyMember newMember = FamilyMember.builder()
+        .family(family)
+        .user(user)
+        .role("MEMBER")
+        .nicknameInFamily(user.getNickname()) // User의 nickname을 가족 내 닉네임으로 설정
+        .isActive(true)
+        .build();
+
+    FamilyMember savedMember = familyMemberRepository.save(newMember);
+
+    return JoinFamilyResponseDto.builder()
+        .familyId(family.getFamilyId())
+        .familyName(family.getFamilyName())
+        .inviteCode(family.getInviteCode())
+        .memberId(savedMember.getMemberId())
+        .role(savedMember.getRole())
+        .joinedAt(savedMember.getJoinedAt())
         .build();
   }
 }
