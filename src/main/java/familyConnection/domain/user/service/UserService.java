@@ -1,5 +1,6 @@
 package familyConnection.domain.user.service;
 
+import familyConnection.domain.family.repository.FamilyMemberRepository;
 import familyConnection.domain.user.dto.UpdateProfileRequestDto;
 import familyConnection.domain.user.dto.UserProfileResponseDto;
 import familyConnection.domain.user.entity.User;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final FamilyMemberRepository familyMemberRepository;
 
   @Transactional
   public UserProfileResponseDto updateProfile(Long userId, UpdateProfileRequestDto request) {
@@ -29,6 +31,13 @@ public class UserService {
     }
 
     User updatedUser = userRepository.save(user);
+
+    // 해당 사용자의 활성화된 FamilyMember의 nicknameInFamily도 업데이트
+    familyMemberRepository.findByUserAndIsActiveTrue(user)
+        .ifPresent(member -> {
+          member.setNicknameInFamily(request.getNickname());
+          familyMemberRepository.save(member);
+        });
 
     return UserProfileResponseDto.builder()
         .userId(updatedUser.getId())
