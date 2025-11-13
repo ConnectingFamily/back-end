@@ -12,6 +12,7 @@ public class CommentResponseDto {
     private Long commentId;
     private Long dailyQuestionId;
     private Long userId;
+    private String userNickname;
     private String content;
     private CommentType type;
     private LocalDateTime createdAt;
