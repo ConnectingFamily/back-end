@@ -180,4 +180,32 @@ public class DailyQuestionService {
                 })
                 .collect(Collectors.toList());
     }
+
+
+    @Transactional
+    public void deleteMyAnswer(Long userId, Long dailyQuestionId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorStatus._USER_NOT_FOUND));
+
+        DailyQuestion dailyQuestion = dailyQuestionRepository.findById(dailyQuestionId)
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_FOUND_ANSWER));
+        Answer myAnswer = answerRepository.findByDailyQuestionAndUser(dailyQuestion, user)
+                .orElseThrow(() -> new CustomException(ErrorStatus._NOT_FOUND_ANSWER));
+
+        answerRepository.delete(myAnswer);
+
+        // 가족 활성 멤버/답변 수 다시 체크해서 isAllAnswered 갱신
+        List<FamilyMember> activeMembers =
+                familyMemberRepository.findByFamilyAndIsActiveTrueWithUser(dailyQuestion.getFamily());
+        List<Answer> answers = answerRepository.findByDailyQuestion(dailyQuestion);
+
+        // 한 명이라도 빠졌으므로 전원 완료 상태는 해제됨
+        if (answers.size() != activeMembers.size()) {
+            dailyQuestion.setIsAllAnswered(false);
+        }
+
+        // TODO: 가족 레벨/답변 수를 줄이는 로직이 필요하다면
+        familyAnswerLevelService.decreaseAnswerCount(dailyQuestion.getFamily());
+    }
+
 }
