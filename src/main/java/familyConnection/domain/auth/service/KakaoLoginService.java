@@ -114,6 +114,7 @@ public class KakaoLoginService {
 
     return userRepository.findByKakaoId(kakaoId)
         .map(user -> {
+          // 기존 사용자 업데이트
           user.setLastLoginAt(LocalDateTime.now());
           user.setIsActive(true);
           // 필요시 닉네임/프로필 갱신
@@ -123,9 +124,11 @@ public class KakaoLoginService {
             user.setProfileImageUrl(profileImageUrl);
           if (email != null)
             user.setEmail(email);
-          return user;
+          // 명시적으로 save 호출 (JPA 변경 감지가 작동하지만 명확성을 위해)
+          return userRepository.save(user);
         })
         .orElseGet(() -> {
+          // 새 사용자 생성
           User newUser = User.builder()
               .kakaoId(kakaoId)
               .email(email) // 동의 안 하면 null일 수 있음
