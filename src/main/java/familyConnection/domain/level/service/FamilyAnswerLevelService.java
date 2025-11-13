@@ -49,4 +49,24 @@ public class FamilyAnswerLevelService {
                         .build()
         );
     }
+
+    @Transactional
+    public void decreaseAnswerCount(Family family) {
+        FamilyLevel familyLevel = familyLevelRepository
+                .findByFamily(family)
+                .orElseThrow(() -> new IllegalStateException("FamilyLevel not found"));
+
+        // 1. 포인트(답변 수) -1 (엔티티 단에서 0 미만 방지)
+        familyLevel.decreaseAnswerCount();
+
+        // 2. 감소된 포인트 기준으로 레벨 재계산
+        int newAnswerCount = familyLevel.getCurrentPoints();
+        int resolvedLevel = levelPolicy.resolveLevelByAnswerCount(newAnswerCount);
+
+        // 3. 레벨 변경이 필요할 때만 반영
+        if (resolvedLevel != familyLevel.getCurrentLevel()) {
+            familyLevel.setCurrentLevel(resolvedLevel);
+            familyLevel.setLevelName(levelPolicy.resolveLevelName(resolvedLevel));
+        }
+    }
 }
