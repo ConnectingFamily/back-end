@@ -73,4 +73,21 @@ public class DailyQuestionController {
         List<AnswerDetailDto> answers = dailyQuestionService.getAnswers(userId, dailyQuestionId);
         return ResponseEntity.ok(ApiResponse.onSuccess(answers));
     }
+
+    @Operation(
+            summary = "오늘 질문에 대한 내 답변 삭제",
+            description = "해당 일일 질문(dailyQuestionId)에 대해 내가 작성한 답변을 삭제합니다. " +
+                    "삭제 후에는 다시 답변을 작성할 수 있습니다."
+    )
+    @DeleteMapping("/{dailyQuestionId}/answers")
+    public ResponseEntity<ApiResponse<Void>> deleteMyAnswer(
+            @Parameter(description = "일일 질문 ID", example = "1")
+            @PathVariable Long dailyQuestionId
+    ) {
+        Long userId = getCurrentUserId();
+        dailyQuestionService.deleteMyAnswer(userId, dailyQuestionId);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
+
+
 }
