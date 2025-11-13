@@ -46,5 +46,11 @@ public class FamilyLevel {
     @Column(name = "updated_at")
     @Comment("수정시각")
     private LocalDateTime updatedAt;
+
+    public void decreaseAnswerCount() {
+        if (this.currentPoints > 0) {
+            this.currentPoints -= 1;
+        }
+    }
 }
 
