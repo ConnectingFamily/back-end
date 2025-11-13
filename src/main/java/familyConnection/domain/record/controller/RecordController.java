@@ -27,6 +27,8 @@ public class RecordController {
         return Long.parseLong(authentication.getName());
     }
 
+
+    //TODO 삭제해야할 것.
     @Operation(summary = "답변 기록 조회 (달력)", description = "해당 가족, 해당 연/월에 내가 답변한 날짜들을 반환합니다.")
     @GetMapping
     public ResponseEntity<ApiResponse<MonthlyRecordResponseDto>> getMonthlyRecords(
