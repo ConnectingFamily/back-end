@@ -11,6 +11,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(CustomException.class)
+  public ResponseEntity<ApiResponse<Object>> handleCustomException(CustomException e) {
+    log.warn("CustomException: {}", e.getMessage());
+    return ResponseEntity
+        .status(e.getErrorCode().getReasonHttpStatus().getHttpStatus())
+        .body(ApiResponse.onFailure(e.getErrorCode(), null));
+  }
+
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException e) {
     String message = e.getMessage();

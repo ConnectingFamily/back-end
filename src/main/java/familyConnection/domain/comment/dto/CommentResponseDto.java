@@ -1,5 +1,6 @@
 package familyConnection.domain.comment.dto;
 
+import familyConnection.domain.comment.entity.CommentType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,9 +10,10 @@ import java.time.LocalDateTime;
 @Builder
 public class CommentResponseDto {
     private Long commentId;
-    private Long answerId;
+    private Long dailyQuestionId;
     private Long userId;
     private String content;
+    private CommentType type;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
