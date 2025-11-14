@@ -1,6 +1,6 @@
 package familyConnection.domain.comment.entity;
 
-import familyConnection.domain.question.entity.Answer;
+import familyConnection.domain.question.entity.DailyQuestion;
 import familyConnection.domain.user.entity.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,9 +25,9 @@ public class Comment {
   private Long commentId;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "answer_id", nullable = false)
-  @org.hibernate.annotations.Comment("답변")
-  private Answer answer;
+  @JoinColumn(name = "daily_question_id", nullable = false)
+  @org.hibernate.annotations.Comment("일일 질문")
+  private DailyQuestion dailyQuestion;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
@@ -37,6 +37,11 @@ public class Comment {
   @Column(name = "content", nullable = false, columnDefinition = "TEXT")
   @org.hibernate.annotations.Comment("댓글 내용")
   private String content;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type", nullable = false)
+  @org.hibernate.annotations.Comment("댓글 타입 (TEXT, EMOJI)")
+  private CommentType type;
 
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
