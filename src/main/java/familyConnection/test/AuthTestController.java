@@ -1,4 +1,4 @@
-package familyConnection.test;
+/*package familyConnection.test;
 
 import familyConnection.global.apiPayload.ApiResponse;
 import familyConnection.global.security.jwt.JwtTokenProvider;
@@ -35,3 +35,4 @@ public class AuthTestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(token));
     }
 }
+*/
